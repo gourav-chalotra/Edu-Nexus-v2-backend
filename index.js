@@ -26,8 +26,12 @@ initSocket(server);
 
 // Middlewares
 app.use(cors({
-  origin: '*', // For development, allow all origins. Can be restricted in production.
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  origin: [
+    process.env.FRONTEND_URL || 'http://localhost:5173',
+    'https://your-frontend.vercel.app' 
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json({ limit: '10mb' }));
@@ -43,6 +47,15 @@ app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/teacher', teacherRoutes);
 app.use('/api/student', studentRoutes);
+
+// Mock /api/users endpoint for frontend example integration
+app.get('/api/users', (req, res) => {
+  res.json([
+    { id: 1, name: 'Alice Smith', role: 'Student', email: 'alice@example.com' },
+    { id: 2, name: 'Bob Jones', role: 'Teacher', email: 'bob@example.com' },
+    { id: 3, name: 'Charlie Brown', role: 'Admin', email: 'charlie@example.com' }
+  ]);
+});
 
 // Seed default Admin Account if not present
 const seedAdmin = async () => {
